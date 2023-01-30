@@ -1,0 +1,24 @@
+{
+  "testData": [
+    {
+      "nameBoard": "KanbanTool",
+      "nameColumn": "Backlog",
+      "nameCards": "Карточка для изучения API",
+      "pathAttachment": "src/test/resources/upload/image.jpg",
+      "nameAttachment": "image.jpg",
+      "date": 1,
+      "desc": "Тут будет отмечаться прогресс обучения",
+      "nameChecklist": "Чек-лист",
+      "nameCheckItem": "Понять протокол HTTP",
+      "nameCheckItemTwo": "Выучить методы запросов",
+      "complete": "complete",
+      "nameBoardTwo": "Done",
+      "archive": "true",
+      "text": ":thumbsup:"
+    }
+  ]
+}
+
+
+
+
