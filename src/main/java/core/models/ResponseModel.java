@@ -15,6 +15,8 @@ public class ResponseModel {
     private String desc;
     private String state;
     private String closed;
+    private String _value;
+    private String idList;
 
     private Data data;
 

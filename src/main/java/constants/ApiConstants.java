@@ -1,6 +1,6 @@
 package constants;
 
-public class EndPoints {
+public class ApiConstants {
 
     public static final String ENDPOINT_BOARD = "boards";
     public static final String ENDPOINT_LIST = "lists";

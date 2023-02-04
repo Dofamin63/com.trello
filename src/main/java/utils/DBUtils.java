@@ -14,9 +14,9 @@ public class DBUtils {
 
     private static Connection getConnectToDB() throws SQLException {
         return DriverManager.getConnection(
-                Config.getDbConfigurations().getDbUrl(),
-                Config.getDbConfigurations().getDbLogin(),
-                Config.getDbConfigurations().getDbPassword());
+                Config.getValue("db.url"),
+                Config.getValue("db.login"),
+                Config.getValue("db.password"));
     }
 
     private static List<Map<String, Object>> getTable(String sql) {

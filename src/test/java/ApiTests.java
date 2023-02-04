@@ -1,10 +1,10 @@
+import core.ApiManager;
 import core.models.ResponseModel;
 import core.Specifications;
 import core.models.RequestModel;
 import configurations.Config;
-import io.qameta.allure.Step;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import dataprovider.Dataprovider;
 import dataprovider.RequestData;
@@ -13,162 +13,147 @@ import utils.DateUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import static constants.EndPoints.*;
+import static constants.ApiConstants.*;
 import static constants.IdConstants.*;
 
-@Test(dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
+public class ApiTests {
 
-public class ApiTests extends BaseTest {
-
+    ApiManager apiManager = new ApiManager();
     Map<String, String> contextHolder = new HashMap<>();
 
-    @BeforeClass
+    @BeforeTest
     public void setup() {
         Specifications.installSpecification(Specifications.requestSpec(
-                        Config.apiConfigurations().getTrelloUrl(),
-                        Config.apiConfigurations().getBasePath(),
-                        Config.getDbConfigurations().getUserName()),
+                        Config.getValue("trello.url"),
+                        Config.getValue("base.path"),
+                        Config.getValue("db.userName")),
                 Specifications.responseSpec(200));
     }
 
-    @Step("Создать доску")
-    @Test(priority = 1)
+    @Test(priority = 1, description = "Создать доску", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void createBoard(RequestData data) {
         RequestModel request = RequestModel.builder().name(data.getNameBoard()).build();
         ResponseModel response = apiManager.create(ENDPOINT_BOARD, request);
-        contextHolder.put(ID_BOARD, response.getId());
+        contextHolder.put(BOARD_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameBoard());
     }
 
-    @Step("Создать колонку")
-    @Test(priority = 2)
+    @Test(priority = 2, description = "Создать колонку", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void createLists(RequestData data) {
-        RequestModel request = RequestModel.builder().name(data.getNameColumn()).idBoard(contextHolder.get(ID_BOARD)).build();
+        RequestModel request = RequestModel.builder().name(data.getNameColumn()).idBoard(contextHolder.get(BOARD_ID)).build();
         ResponseModel response = apiManager.create(ENDPOINT_LIST, request);
-        contextHolder.put(ID_LIST, response.getId());
+        contextHolder.put(LIST_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameColumn());
     }
 
-    @Step("Создать карточку")
-    @Test(priority = 3)
+    @Test(priority = 3, description = "Создать карточку", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void createCards(RequestData data) {
-        RequestModel request = RequestModel.builder().name(data.getNameCards()).idList(contextHolder.get(ID_LIST)).build();
+        RequestModel request = RequestModel.builder().name(data.getNameCards()).idList(contextHolder.get(LIST_ID)).build();
         ResponseModel response = apiManager.create(ENDPOINT_CREATE_CARD, request);
-        contextHolder.put(ID_CARD, response.getId());
+        contextHolder.put(CARD_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameCards());
     }
 
-    @Step("Добавить вложение в карточку")
-    @Test(priority = 4)
+    @Test(priority = 4, description = "Добавить вложение в карточку", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addAttachment(RequestData data) {
-        ResponseModel response = apiManager.addAttachment(ENDPOINT_CARD + contextHolder.get(ID_CARD) + ENDPOINT_ATTACHMENT, data.getPathAttachment());
-        contextHolder.put(ID_FILE, response.getId());
+        ResponseModel response = apiManager.addAttachment(ENDPOINT_CARD + contextHolder.get(CARD_ID) + ENDPOINT_ATTACHMENT, data.getPathAttachment());
+        contextHolder.put(FILE_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameAttachment());
     }
 
-    @Step("Задать дедлайн карточки")
-    @Test(priority = 5)
+    @Test(priority = 5, description = "Задать дедлайн карточки", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addDeadlineCards(RequestData data) {
         String date = DateUtils.getData(data.getDate());
         RequestModel request = RequestModel.builder().due(date).build();
-        ResponseModel response = apiManager.update(ENDPOINT_CARD + contextHolder.get(ID_CARD), request);
-        contextHolder.put(ID_DEADLINE, response.getId());
+        ResponseModel response = apiManager.update(ENDPOINT_CARD + contextHolder.get(CARD_ID), request);
+        contextHolder.put(DEADLINE_ID, response.getId());
         Assert.assertEquals(response.getDue(), date);
     }
 
-    @Step("Добавить описание карточки")
-    @Test(priority = 6)
+    @Test(priority = 6, description = "Добавить описание карточки", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addDescriptionCards(RequestData data) {
         RequestModel request = RequestModel.builder().desc(data.getDesc()).build();
-        ResponseModel response = apiManager.update(ENDPOINT_CARD + contextHolder.get(ID_CARD), request);
-        contextHolder.put(ID_DESC, response.getId());
+        ResponseModel response = apiManager.update(ENDPOINT_CARD + contextHolder.get(CARD_ID), request);
+        contextHolder.put(DESC_ID, response.getId());
         Assert.assertEquals(response.getDesc(), data.getDesc());
     }
 
-    @Step("Создать чек-лист")
-    @Test(priority = 7)
+    @Test(priority = 7, description = "Создать чек-лист", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void createChecklist(RequestData data) {
         RequestModel request = RequestModel.builder().name(data.getNameChecklist()).build();
-        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKLIST, request, request.createParam(ID_PARAM, contextHolder.get(ID_CARD)));
-        contextHolder.put(ID_CHECKLIST, response.getId());
+        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKLIST, request, request.createParam(PARAM_ID, contextHolder.get(CARD_ID)));
+        contextHolder.put(CHECKLIST_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameChecklist());
     }
 
-    @Step("Добавить пункт в чек-лист")
-    @Test(priority = 8)
+    @Test(priority = 8, description = "Добавить пункт в чек-лист", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addCheckItem(RequestData data) {
         RequestModel request = RequestModel.builder().name(data.getNameCheckItem()).build();
-        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKITEM, request, request.createParam(ID_PARAM, contextHolder.get(ID_CHECKLIST)));
-        contextHolder.put(ID_CHECKITEM, response.getId());
+        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKITEM, request, request.createParam(PARAM_ID, contextHolder.get(CHECKLIST_ID)));
+        contextHolder.put(CHECKITEM_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameCheckItem());
     }
 
-    @Step("Добавить второй пункт в чек-лист")
-    @Test(priority = 8)
+    @Test(priority = 8, description = "Добавить второй пункт в чек-лист", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addCheckItemTwo(RequestData data) {
         RequestModel request = RequestModel.builder().name(data.getNameCheckItemTwo()).build();
-        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKITEM, request, request.createParam(ID_PARAM, contextHolder.get(ID_CHECKLIST)));
-        contextHolder.put(ID_CHECKITEM_TWO, response.getId());
+        ResponseModel response = apiManager.create(ENDPOINT_CREATE_CHECKITEM, request, request.createParam(PARAM_ID, contextHolder.get(CHECKLIST_ID)));
+        contextHolder.put(CHECKITEM_TWO_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameCheckItemTwo());
     }
 
-    @Step("Выполнить первый пункт чек-листа")
-    @Test(priority = 10)
+    @Test(priority = 10, description = "Выполнить первый пункт чек-листа", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void checkItemComplete(RequestData data) {
         RequestModel request = RequestModel.builder().state(data.getComplete()).build();
-        ResponseModel response = apiManager.update(ENDPOINT_UPDATE_CHECKITEM + contextHolder.get(ID_CHECKITEM),
-                request, request.createParam(ID_PARAM, contextHolder.get(ID_CARD)));
+        ResponseModel response = apiManager.update(ENDPOINT_UPDATE_CHECKITEM + contextHolder.get(CHECKITEM_ID),
+                request, request.createParam(PARAM_ID, contextHolder.get(CARD_ID)));
         Assert.assertEquals(response.getName(), data.getNameCheckItem());
         Assert.assertEquals(response.getState(), data.getComplete());
     }
 
-    @Step("Создать вторую колонку")
-    @Test(priority = 11)
+    @Test(priority = 11, description = "Создать вторую колонку", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void createListsTwo(RequestData data) {
-        RequestModel request = RequestModel.builder().name(data.getNameBoardTwo()).idBoard(contextHolder.get(ID_BOARD)).build();
+        RequestModel request = RequestModel.builder().name(data.getNameBoardTwo()).idBoard(contextHolder.get(BOARD_ID)).build();
         ResponseModel response = apiManager.create(ENDPOINT_LIST, request);
-        contextHolder.put(ID_CHECKLIST_TWO, response.getId());
+        contextHolder.put(LIST_TWO_ID, response.getId());
         Assert.assertEquals(response.getName(), data.getNameBoardTwo());
     }
 
-    @Step("Переместить карточку")
-    @Test(priority = 12)
-    public void moveCards(RequestData data) {
-        RequestModel request = RequestModel.builder().idList(contextHolder.get(ID_CHECKLIST_TWO)).build();
-        apiManager.update(ENDPOINT_CARD + contextHolder.get(ID_CARD), request);
+    @Test(priority = 12, description = "Переместить карточку")
+    public void moveCards() {
+        RequestModel request = RequestModel.builder().idList(contextHolder.get(LIST_TWO_ID)).build();
+        ResponseModel response = apiManager.update(ENDPOINT_CARD + contextHolder.get(CARD_ID), request);
+        Assert.assertEquals(response.getIdList(), contextHolder.get(LIST_TWO_ID));
     }
 
-    @Step("Архивировать колонку")
-    @Test(priority = 13)
+    @Test(priority = 13, description = "Архивировать колонку", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void archiveList(RequestData data) {
         RequestModel request = RequestModel.builder().closed(data.getArchive()).build();
-        ResponseModel response = apiManager.update(ENDPOINT_LIST + "/" + contextHolder.get(ID_LIST), request);
+        ResponseModel response = apiManager.update(ENDPOINT_LIST + "/" + contextHolder.get(LIST_ID), request);
         Assert.assertEquals(response.getName(), data.getNameColumn());
         Assert.assertEquals(response.getClosed(), data.getArchive());
     }
 
-    @Step("Выполнить второй пункт чек-листа")
-    @Test(priority = 14)
+    @Test(priority = 14, description = "Выполнить второй пункт чек-листа", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void checkItemCompleteTwo(RequestData data) {
         RequestModel request = RequestModel.builder().state(data.getComplete()).build();
-        ResponseModel response = apiManager.update(ENDPOINT_UPDATE_CHECKITEM + contextHolder.get(ID_CHECKITEM_TWO),
-                request, request.createParam(ID_PARAM, contextHolder.get(ID_CARD)));
+        ResponseModel response = apiManager.update(ENDPOINT_UPDATE_CHECKITEM + contextHolder.get(CHECKITEM_TWO_ID),
+                request, request.createParam(PARAM_ID, contextHolder.get(CARD_ID)));
         Assert.assertEquals(response.getName(), data.getNameCheckItemTwo());
         Assert.assertEquals(response.getState(), data.getComplete());
     }
 
-    @Step("Добавить коментарий")
-    @Test(priority = 15)
+    @Test(priority = 15, description = "Добавить коментарий", dataProvider = "dataprovider", dataProviderClass = Dataprovider.class)
     public void addComments(RequestData data) {
         RequestModel request = RequestModel.builder().text(data.getText()).build();
-        ResponseModel response = apiManager.create(ENDPOINT_ADD_COMMENTS, request, request.createParam(ID_PARAM, contextHolder.get(ID_CARD)));
-        contextHolder.put(ID_COMMENTS, response.getId());
+        ResponseModel response = apiManager.create(ENDPOINT_ADD_COMMENTS, request, request.createParam(PARAM_ID, contextHolder.get(CARD_ID)));
+        contextHolder.put(COMMENTS_ID, response.getId());
         Assert.assertEquals(response.getData().getText(), data.getText());
     }
 
-    @Step("Удалить доску")
-    @Test(priority = 16)
-    public void deleteBoard(RequestData data) {
-        apiManager.delete(ENDPOINT_BOARD + "/" + contextHolder.get(ID_BOARD));
+    @Test(priority = 16, description = "Удалить доску")
+    public void deleteBoard() {
+        ResponseModel response = apiManager.delete(ENDPOINT_BOARD + "/" + contextHolder.get(BOARD_ID));
+        Assert.assertNull(response.get_value());
     }
 }

@@ -1,23 +1,18 @@
 package configurations;
 
-import org.aeonbits.owner.ConfigFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 public class Config {
 
-    private static ApiConfigurations apiConfigurations;
-    private static DbConfigurations dBConfigurations;
-
-    public static ApiConfigurations apiConfigurations() {
-        if (apiConfigurations == null) {
-            apiConfigurations = ConfigFactory.create(ApiConfigurations.class);
+    public static String getValue(String value) {
+        Properties properties = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream("src/test/resources/base.properties")) {
+            properties.load(fileInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return apiConfigurations;
-    }
-
-    public static DbConfigurations getDbConfigurations() {
-        if (dBConfigurations == null) {
-            dBConfigurations = ConfigFactory.create(DbConfigurations.class);
-        }
-        return dBConfigurations;
+        return properties.getProperty(value);
     }
 }
