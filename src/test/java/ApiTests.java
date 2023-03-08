@@ -24,9 +24,9 @@ public class ApiTests {
     @BeforeTest
     public void setup() {
         Specifications.installSpecification(Specifications.requestSpec(
-                        Config.getValue("trello.url"),
-                        Config.getValue("base.path"),
-                        Config.getValue("db.userName")),
+                        Config.baseConfigurations().getTrelloUrl(),
+                        Config.baseConfigurations().getBasePath(),
+                        Config.baseConfigurations().getDbUserName()),
                 Specifications.responseSpec(200));
     }
 

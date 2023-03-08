@@ -16,6 +16,7 @@ public class Specifications {
                 .addQueryParams(DBUtils.getUserData(userName))
                 .addFilter(new AllureRestAssured()).build();
     }
+
     public static ResponseSpecification responseSpec(Integer status) {
         return new ResponseSpecBuilder().expectStatusCode(status).build();
     }

@@ -1,18 +1,15 @@
 package configurations;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import org.aeonbits.owner.ConfigFactory;
 
 public class Config {
 
-    public static String getValue(String value) {
-        Properties properties = new Properties();
-        try (FileInputStream fileInputStream = new FileInputStream("src/test/resources/base.properties")) {
-            properties.load(fileInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private static BaseConfigurations baseConfigurations;
+
+    public static BaseConfigurations baseConfigurations() {
+        if (baseConfigurations == null) {
+            baseConfigurations = ConfigFactory.create(BaseConfigurations.class);
         }
-        return properties.getProperty(value);
+        return baseConfigurations;
     }
 }

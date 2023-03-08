@@ -5,7 +5,7 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 public class EncryptorUtils {
 
-   private final static String ENCRYPTION_KYE = Config.getValue("db.encryptionKey");
+   private final static String ENCRYPTION_KYE = Config.baseConfigurations().getDbEncryptionKey();
 
     public static String encrypt(String value) {
         StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
